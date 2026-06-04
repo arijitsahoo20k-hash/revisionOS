@@ -38,6 +38,8 @@ export default function ProfilePage() {
   async function handleAvatarChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
+    // Reset so selecting the same file again still fires onChange
+    e.target.value = ''
     setUploadingAvatar(true)
     const { error } = await profileService.uploadAvatar(user.id, file)
     if (error) toast('Failed to upload avatar', 'error')
@@ -94,7 +96,7 @@ export default function ProfilePage() {
               overflow: 'hidden', position: 'relative'
             }}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={`${profile.avatar_url}?t=${profile.updated_at || ''}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : initials}
               {uploadingAvatar && (
                 <div style={{
