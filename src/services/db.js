@@ -26,7 +26,7 @@ export const profileService = {
   async uploadAvatar(userId, file) {
     const ext = file.name.split('.').pop()
     const timestamp = Date.now()
-    const filePath = `avatars/${userId}_${timestamp}.${ext}`
+    const filePath = `${userId}_${timestamp}.${ext}`
 
     // Remove old avatar files for this user (best-effort, so new upload isn't blocked)
     const { data: existing } = await supabase.storage
