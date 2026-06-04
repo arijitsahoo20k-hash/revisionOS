@@ -25,15 +25,26 @@ export const profileService = {
 
   async uploadAvatar(userId, file) {
     const ext = file.name.split('.').pop()
-    const path = `avatars/${userId}.${ext}`
+    const timestamp = Date.now()
+    const filePath = `avatars/${userId}_${timestamp}.${ext}`
+
+    // Remove old avatar files for this user (best-effort, so new upload isn't blocked)
+    const { data: existing } = await supabase.storage
+      .from('avatars')
+      .list('', { search: userId })
+    if (existing?.length) {
+      const oldPaths = existing.map(f => f.name)
+      await supabase.storage.from('avatars').remove(oldPaths)
+    }
+
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, file, { upsert: true })
+      .upload(filePath, file, { upsert: false })
     if (uploadError) return { data: null, error: uploadError }
 
     const { data: { publicUrl } } = supabase.storage
       .from('avatars')
-      .getPublicUrl(path)
+      .getPublicUrl(filePath)
 
     const { data, error } = await supabase
       .from('profiles')
